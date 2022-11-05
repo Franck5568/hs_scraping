@@ -11,10 +11,10 @@ bg_quote = 6000
 
 hof = hs.hsApi()
 # chargement de la page 1 et de la dernière page
-hof.get_page_info(1)
-hof.get_page_info(2)
+hof.current_page=1
+hof.api_get_page_info()
 
-hof.get_first_page_with_rank_player()
+hof.api_get_first_page_with_rank_player(bg_tag=bg_tag, bg_quote=bg_quote)
 # recherche page du rang
 print(hof.last_page)
 
