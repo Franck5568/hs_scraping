@@ -6,18 +6,18 @@ def query_battletag() -> str:
         if valide_iuk(response):
             return response
 
-def query_quote() -> int:
+def query_int_value_min_max(texte: str,min: int, max: int) -> int:
     quote_uk = -1
     while True:
         try:
-            response=int(input(f"Entrez votre classement (<{MAX_QUOTE_BG}) : "))
+            response=int(input(f"{texte} (entre {min} et {max}) : "))
             if 0 < response < MAX_QUOTE_BG and valide_iuk(response) :
                 return response
             else:
-                print(f"Entrez un nombre entier compris entre 0 et {MAX_QUOTE_BG}.")
+                print(f"Entrez un nombre entier compris entre {min} et {max}.")
 
         except ValueError:
-            print(f"Entrez un nombre entier inférieur à {MAX_QUOTE_BG}.")
+            print(f"Entrez un nombre entier.")
 
 def valide_iuk(query:str)->str:
     valid=''
