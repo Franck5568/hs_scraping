@@ -1,5 +1,4 @@
 from urllib import response
-import packages.player_info as player
 import requests
 import json
 
@@ -27,13 +26,13 @@ class hsApi:
             self.last_page = info_json['leaderboard']['pagination']['totalPages']
 
     def api_set_current_page_players(self, joueurs: dict) -> None:
-        p: player.playerInfo
         # init page courrante
         self.current_page_players={}
 
         for joueur in joueurs:
-            p = player.playerInfo(page=self.current_page ,rang=joueur['rank'], bg_tag=joueur['accountid'],quote=joueur['rating'])
-            self.current_page_players[p.account] = p.get_player_info()
+            self.current_page_players[joueur['accountid']] = {'page':self.current_page ,
+                                                    'rang':joueur['rank'], 
+                                                    'quote':joueur['rating']}
 
     def api_get_page_info(self) -> dict:
         # appel web

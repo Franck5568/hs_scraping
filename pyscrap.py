@@ -13,18 +13,21 @@ bg_quote = 6367
 # bg_saison = iuk.query_int_value_min_max(texte="Entrer une saison :", min=0, max=8)
 bg_saison = 8
 
-# TODO load json from disque
-player_loaded = {}
+# load json from disque
+hof_histo = player.playerInfo()
 
-hof = hs.hsApi(saison=8)
-# chargement de la page 1 et de la dernière page
-hof.current_page=1
-# update du des données chargées
-player_loaded.update(hof.api_get_page_info())
+# objet for rest queries
+hof_api = hs.hsApi(saison=8)
 
-# TODO
-# check if bg_tag is in memory (or json later)
+# not save file
+if not hof_histo.hall_of_fame:
+    # chargement de la page 1 et de la dernière page
+    hof_api.current_page=1
+    # update du des données chargées
+    hof_histo.update(hof_api.api_get_page_info())
 
+# check if bg_tag is in memory
+print(hof_histo.get_quote_of_tag(tag_name=bg_tag))
 # if found check get bg_quote == quote in memory
 #   if == end data in memory
 #   if lesser check api page + 1 until found
@@ -38,4 +41,4 @@ player_loaded.update(hof.api_get_page_info())
 #   else (user_quote < memory_quote) : current_page += 1
 
 # recherche page du rang
-print(hof.last_page)
+print(hof_api.last_page)
