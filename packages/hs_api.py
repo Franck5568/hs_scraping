@@ -7,7 +7,7 @@ import time
 class HsApi:
     # root url BG
     URL_BG_ROOT = "https://hearthstone.blizzard.com/fr-fr/api/community/leaderboardsData?region=EU&leaderboardId" \
-                  "=battlegrounds "
+                  "=battlegrounds"
 
     def __init__(self, saison: int) -> None:
         # id de la saison courrante saison - 1
@@ -40,7 +40,7 @@ class HsApi:
             self.current_page_players[joueur['accountid']] = {'page': page,
                                                               'rang': joueur['rank'],
                                                               'quote': joueur['rating'],
-                                                              'updated': datetime.date.today()}
+                                                              'updated': str(datetime.date.today())}
 
     def api_get_top_page_info(self) -> dict:
         # appel web

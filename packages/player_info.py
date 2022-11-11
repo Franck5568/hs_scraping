@@ -25,17 +25,15 @@ class PlayerInfo:
         return -1: si tagname not found 
         """
         check_memory: str = self.hall_of_fame.get(self.tagname, '')
-        # si tag trouvé et date update aujourd'hui
-        if check_memory:
-            if self.hall_of_fame.get(self.tagname).get('updated') == datetime.date.today():
-                # rien à faire tout est à jour on a trouvé
-                return 1
-            else:
-                # on doit mettre à jour la donnée en mémoire
-                return 0
-        else:
+        if not check_memory:
             # donnée n'est pas en mémoire
             return -1
+        if self.hall_of_fame.get(self.tagname).get('updated') == str(datetime.date.today()):
+            # rien à faire tout est à jour on a trouvé
+            return 1
+        else:
+            # on doit mettre à jour la donnée en mémoire
+            return 0
 
     def get_ranking(self) -> int:
         return self.hall_of_fame.get(self.tagname).get('rang')
@@ -57,5 +55,5 @@ class PlayerInfo:
             return {}
 
     def save_json(self) -> None:
-        with open(self.save_filename, 'wb') as f:
-            json.dump(self.hall_of_fame, f, ensure_ascii=False, indent=4)
+        with open(self.save_filename, 'w') as f:
+            json.dump(self.hall_of_fame, f, indent=4)

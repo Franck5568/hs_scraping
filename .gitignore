@@ -1,3 +1,6 @@
 e311/
+venv/
 e310/
 **/__pycache__/
+.idea/
+
