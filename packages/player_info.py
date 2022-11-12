@@ -8,6 +8,8 @@ class PlayerInfo:
     JSON_FILENAME = '.halloffame.json'
 
     def __init__(self, tagname: str, userquote: int) -> None:
+        # set init minute of update launch
+        self.updated_minute = self.set_updated_time()
         self.hall_of_fame = {}
         self.tagname = tagname
         self.userquote = userquote
@@ -28,7 +30,7 @@ class PlayerInfo:
         if not check_memory:
             # donnée n'est pas en mémoire
             return -1
-        if self.hall_of_fame.get(self.tagname).get('updated') == str(datetime.date.today()):
+        if self.hall_of_fame.get(self.tagname).get('updated') == self.updated_minute:
             # rien à faire tout est à jour on a trouvé
             return 1
         else:
@@ -40,6 +42,12 @@ class PlayerInfo:
 
     def get_page(self) -> int:
         return self.hall_of_fame.get(self.tagname).get('page')
+
+    @staticmethod
+    def set_updated_time():
+        # updated minute
+        updated_minute: str = str(datetime.datetime.now())
+        return updated_minute[:updated_minute.rfind(':')]
 
     def get_page_quote(self, page: int) -> int:
         return max(v['quote'] for v in self.hall_of_fame.values() if v['page'] == page)
