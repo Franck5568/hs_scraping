@@ -4,10 +4,8 @@ import packages.player_info as player
 import math
 
 bg_tag = iuk.query_battletag()
-#bg_tag = 'sinquem'
 
 bg_quote = iuk.query_int_value_min_max(texte="Entrer votre quote :", min=0, max=20000)
-# bg_quote = 6270
 
 # input saison
 # bg_saison = iuk.query_int_value_min_max(texte="Entrer une saison :", min=0, max=8)
