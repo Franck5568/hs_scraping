@@ -41,10 +41,14 @@ while tag_in_current_page < 1:
     if tag_in_current_page == 0:
         # la page courante de recherche est celle en mémoire
         hof_api.bottom_page = hof_histo.get_page()
+        # il faut supprimer la donner en mémoire
+        hof_histo.del_player_info()
 
         # on charge la page en mémoire
         hof_histo.update(hof_api.api_get_bottom_page_info())
 
+        # diminution du pas car on ne doit pas être très loin
+        page_step = 8
     elif tag_in_current_page == 1:
         print(f"Vous êtes classé : {hof_histo.get_ranking()}")
 

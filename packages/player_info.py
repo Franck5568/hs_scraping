@@ -42,15 +42,15 @@ class PlayerInfo:
         return self.hall_of_fame.get(self.tagname).get('page')
 
     def get_page_quote(self, page: int) -> int:
-        return max([(v['quote']) for v in self.hall_of_fame.values() if v['page'] == page])
+        return max(v['quote'] for v in self.hall_of_fame.values() if v['page'] == page)
 
-    #    def get_player_info(self) -> dict:
-    #        return {'rank':self.rank,'rating':self.rating,'page':self.page}
+    def del_player_info(self) -> None:
+        self.hall_of_fame.pop(self.tagname)
 
-    def load_json(self) -> dict:
+    def load_json(self) -> None:
         if os.path.exists(self.save_filename):
             with open(self.save_filename, 'r') as f:
-                return json.load(f)
+                self.hall_of_fame = json.load(f)
         else:
             return {}
 
