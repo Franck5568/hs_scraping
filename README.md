@@ -1,5 +1,6 @@
 # hs_scraping
 Script to get your ranking in Heartstone game from Blizzard.
+
 Inputs :
   battle_tag (your login in game)
   current rank points
