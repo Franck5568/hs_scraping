@@ -3,9 +3,9 @@ import packages.hs_api as hs
 import packages.player_info as player
 import math
 
-bg_tag = 'sinquem' # iuk.query_battletag()
+bg_tag = iuk.query_battletag()
 
-bg_quote = 6198 # iuk.query_int_value_min_max(texte="Entrer votre quote :", imin=0, imax=20000)
+bg_quote = iuk.query_int_value_min_max(texte="Entrer votre quote :", imin=0, imax=20000)
 
 # input saison
 # bg_saison = iuk.query_int_value_min_max(texte="Entrer une saison :", min=0, max=8)
