@@ -5,18 +5,18 @@ import math
 
 bg_tag = iuk.query_battletag()
 
-bg_quote = iuk.query_int_value_min_max(texte="Entrer votre quote :", min=0, max=20000)
+bg_quote = iuk.query_int_value_min_max(texte="Entrer votre quote :", imin=0, imax=20000)
 
 # input saison
 # bg_saison = iuk.query_int_value_min_max(texte="Entrer une saison :", min=0, max=8)
-# bg_saison = 8
+bg_saison = 8
 
 # load json from disque
 hof_histo = player.PlayerInfo(tagname=bg_tag, userquote=bg_quote)
 hof_histo.load_json()
 
 # objet for rest queries
-hof_api = hs.HsApi(saison=8, updated_run=hof_histo.updated_minute)
+hof_api = hs.HsApi(saison=bg_saison, updated_run=hof_histo.updated_minute)
 
 # que le fichier soit préent ou pas on charge la 1ere et la derniere page du web en mémoire
 # chargement de la page 1 et de la dernière page
@@ -75,7 +75,7 @@ while tag_in_current_page < 1:
     elif hof_api.bottom_quote > hof_histo.userquote:
         # plancher trop haut
         if hof_api.bottom_quote > 0:
-            #page_par_page = True
+            # page_par_page = True
             # on depasse on divise par 2 le pas, jamais moins de 1
             page_step = max(page_step // 2, 1)
             # le top devient le bot

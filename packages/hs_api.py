@@ -1,7 +1,5 @@
 import requests
 import json
-import datetime
-import time
 
 
 class HsApi:
@@ -41,27 +39,29 @@ class HsApi:
 
     def api_get_top_page_info(self) -> dict:
         # appel web
-        response = requests.get(f'{self.url_page_num}{self.top_page}')
-        # conversion json en dictionnaire
-        # time.sleep(0.5)
-        response_json = json.loads(response.text)
-        # dernière page si non définie
-        if not self.bottom_page:
-            self.api_set_last_page(response_json)
-        # memorise de la page interrogée
-        self.api_set_current_page_players(joueurs=response_json['leaderboard']['rows'], page=self.top_page)
-        # set current top rank
-        l: list = list(self.current_page_players.values())
-        self.top_quote = l[0]['quote']
-        print(f'chargement de la page top : {self.top_page}, quote est inférieure à {self.top_quote}')
-        return self.current_page_players
+        try:
+            response = requests.get(f'{self.url_page_num}{self.top_page}')
+            # conversion json en dictionnaire
+            response_json = json.loads(response.text)
+            # dernière page si non définie
+            if not self.bottom_page:
+                self.api_set_last_page(response_json)
+            # memorise de la page interrogée
+            self.api_set_current_page_players(joueurs=response_json['leaderboard']['rows'], page=self.top_page)
+            # set current top rank
+            l: list = list(self.current_page_players.values())
+            self.top_quote = l[0]['quote']
+            print(f'chargement de la page top : {self.top_page}, quote est inférieure à {self.top_quote}')
+            return self.current_page_players
+
+        except requests.exceptions.HTTPError as error:
+            print(error)
 
     def api_get_bottom_page_info(self) -> dict:
         # appel web
         try:
             response = requests.get(f'{self.url_page_num}{self.bottom_page}')
             # conversion json en dictionnaire
-            # time.sleep(0.5)
             response_json = json.loads(response.text)
             # memorise de la page interrogée
             self.api_set_current_page_players(joueurs=response_json['leaderboard']['rows'], page=self.bottom_page)

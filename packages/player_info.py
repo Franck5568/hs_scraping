@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 import datetime
 import json
@@ -15,7 +14,7 @@ class PlayerInfo:
         self.userquote = userquote
         self.last_good_page_top = 0
         self.last_good_page_bot = 0
-        self.save_filename = os.path.join(Path.home(), self.JSON_FILENAME)
+        self.save_filename = Path.home().joinpath(self.JSON_FILENAME)
 
     def update(self, players_25_api: dict) -> None:
         self.hall_of_fame.update(players_25_api)
@@ -55,8 +54,8 @@ class PlayerInfo:
     def del_player_info(self) -> None:
         self.hall_of_fame.pop(self.tagname)
 
-    def load_json(self) -> None:
-        if os.path.exists(self.save_filename):
+    def load_json(self) -> dict:
+        if Path.is_file(self.save_filename):
             with open(self.save_filename, 'r') as f:
                 self.hall_of_fame = json.load(f)
         else:
