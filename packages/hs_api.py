@@ -37,42 +37,46 @@ class HsApi:
             joueur['accountid']: {'page': page, 'rang': joueur['rank'], 'quote': joueur['rating'],
                                   'updated': self.updated_run} for joueur in joueurs}
 
-    def api_get_top_page_info(self) -> dict:
-        # appel web
+    def api_get_info(self) -> dict:
         try:
-            response = requests.get(f'{self.url_page_num}{self.top_page}')
-            # conversion json en dictionnaire
-            response_json = json.loads(response.text)
-            # dernière page si non définie
-            if not self.bottom_page:
-                self.api_set_last_page(response_json)
-            # memorise de la page interrogée
-            self.api_set_current_page_players(joueurs=response_json['leaderboard']['rows'], page=self.top_page)
-            # set current top rank
-            l: list = list(self.current_page_players.values())
-            self.top_quote = l[0]['quote']
-            print(f'chargement de la page top : {self.top_page}, quote est inférieure à {self.top_quote}')
-            return self.current_page_players
+            while True:
+                response = requests.get(f'{self.url_page_num}{self.bottom_page}')
+                # conversion json en dictionnaire
+                response_json: dict = json.loads(response.text)
+                if response_json.get('leaderboard').get('rows').__len__() > 0:
+                    break
+            return response_json
 
         except requests.exceptions.HTTPError as error:
             print(error)
+
+    def api_get_top_page_info(self) -> dict:
+        response_json = self.api_get_info()
+        if not self.bottom_page:
+            self.api_set_last_page(response_json)
+
+        # memorise de la page interrogée
+        self.api_set_current_page_players(joueurs=response_json['leaderboard']['rows'], page=self.top_page)
+        # set current top rank
+        l: list = list(self.current_page_players.values())
+        self.top_quote = l[0]['quote']
+        print(f'chargement de la page top : Page comprise entre {self.top_page} et {self.bottom_page}, quote est '
+              f'inférieure à {self.top_quote}')
+        return self.current_page_players
 
     def api_get_bottom_page_info(self) -> dict:
-        # appel web
-        try:
-            response = requests.get(f'{self.url_page_num}{self.bottom_page}')
-            # conversion json en dictionnaire
-            response_json = json.loads(response.text)
-            # memorise de la page interrogée
-            self.api_set_current_page_players(joueurs=response_json['leaderboard']['rows'], page=self.bottom_page)
-            # get last element
-            l: list = list(self.current_page_players.values())
-            self.bottom_quote = l[-1]['quote']
-            if not self.max_page:
-                self.max_page = self.bottom_page
-            # retourne les derniers du classement
-            print(f'chargement de la page bot : {self.bottom_page}, Votre quote est supérieure à {self.bottom_quote}')
-            return self.current_page_players
+        response_json = self.api_get_info()
+        # memorise de la page interrogée
+        self.api_set_current_page_players(joueurs=response_json['leaderboard']['rows'], page=self.bottom_page)
+        # get last element
+        l: list = list(self.current_page_players.values())
+        self.bottom_quote = l[-1]['quote']
+        if not self.max_page:
+            self.max_page = self.bottom_page
+        # retourne les derniers du classement
+        print(f'chargement de la page bot : Page comprise entre {self.top_page} et {self.bottom_page}, Votre quote '
+              f'est supérieure à {self.bottom_quote}')
+        return self.current_page_players
 
-        except requests.exceptions.HTTPError as error:
-            print(error)
+    # except requests.exceptions.HTTPError as error:
+    #     print(error)

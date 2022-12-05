@@ -48,8 +48,11 @@ class PlayerInfo:
         updated_minute: str = str(datetime.datetime.now())
         return updated_minute[:updated_minute.rfind(':')]
 
-    def get_page_quote(self, page: int) -> int:
+    def get_page_quote_max(self, page: int) -> int:
         return max(v['quote'] for v in self.hall_of_fame.values() if v['page'] == page)
+
+    def get_page_quote_min(self, page: int) -> int:
+        return min(v['quote'] for v in self.hall_of_fame.values() if v['page'] == page)
 
     def del_player_info(self) -> None:
         self.hall_of_fame.pop(self.tagname)

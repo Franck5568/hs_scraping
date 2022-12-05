@@ -3,9 +3,9 @@ import packages.hs_api as hs
 import packages.player_info as player
 import math
 
-bg_tag = iuk.query_battletag()
+bg_tag = 'sinquem' # iuk.query_battletag()
 
-bg_quote = iuk.query_int_value_min_max(texte="Entrer votre quote :", imin=0, imax=20000)
+bg_quote = 6198 # iuk.query_int_value_min_max(texte="Entrer votre quote :", imin=0, imax=20000)
 
 # input saison
 # bg_saison = iuk.query_int_value_min_max(texte="Entrer une saison :", min=0, max=8)
@@ -18,8 +18,8 @@ hof_histo.load_json()
 # objet for rest queries
 hof_api = hs.HsApi(saison=bg_saison, updated_run=hof_histo.updated_minute)
 
-# que le fichier soit préent ou pas on charge la 1ere et la derniere page du web en mémoire
-# chargement de la page 1 et de la dernière page
+# que le fichier soit présents ou pas on charge la 1ere et la derniere page du web en mémoire
+# chargement de la page 1
 hof_api.top_page = 1
 # update du des données chargées
 hof_histo.update(hof_api.api_get_top_page_info())
@@ -32,7 +32,7 @@ tag_in_current_page: int = 0
 # memo last good
 hof_histo.last_good_page_top = hof_api.top_page
 hof_histo.last_good_page_bot = hof_api.bottom_page
-# page_par_page: int = False
+
 # get the bigger power 2 nearest page number
 page_step: int = 2**int(math.log2(hof_api.max_page))
 
@@ -40,22 +40,20 @@ while tag_in_current_page < 1:
     # check if bg_tag is in memory
     tag_in_current_page: int = hof_histo.find_bg_tagname()
     if tag_in_current_page == 0:
-        # la page courante de recherche est celle en mémoire
+        # la page courante de recherche est en mémoire
         hof_api.bottom_page = hof_histo.get_page()
         # il faut supprimer la donner en mémoire
         hof_histo.del_player_info()
 
-        # on charge la page en mémoire
+        # on recharge la page mémorisé depuis le web
         hof_histo.update(hof_api.api_get_bottom_page_info())
 
-        # diminution du pas car on ne doit pas être très loin
-        page_step = 8
     elif tag_in_current_page == 1:
         print(f"Vous êtes classé : {hof_histo.get_ranking()}")
 
     elif hof_api.top_quote > hof_histo.userquote >= hof_api.bottom_quote:
         # la quote est entre le top et le bot
-        # le plancher est remonté de la moitié de l'écart
+        # On mémorise le bas actuel
         hof_histo.last_good_page_bot = hof_api.bottom_page
 
         # manage page_step
@@ -75,21 +73,24 @@ while tag_in_current_page < 1:
     elif hof_api.bottom_quote > hof_histo.userquote:
         # plancher trop haut
         if hof_api.bottom_quote > 0:
-            # page_par_page = True
             # on depasse on divise par 2 le pas, jamais moins de 1
             page_step = max(page_step // 2, 1)
             # le top devient le bot
             hof_api.top_page = hof_api.bottom_page
-            # nouvelle ref top page
-            hof_histo.last_good_page_top = hof_api.top_page
             # api repprend la dernière bonne bot page en mémoire
             hof_api.bottom_page = hof_histo.last_good_page_bot
+
+            # mémorise le dernier top ok
+            hof_histo.last_good_page_top = hof_api.top_page
             # reload page in memory
-            hof_api.top_quote = hof_histo.get_page_quote(page=hof_histo.last_good_page_top)
-            hof_api.bottom_quote = hof_histo.get_page_quote(page=hof_histo.last_good_page_bot)
+            hof_api.top_quote = hof_histo.get_page_quote_max(page=hof_histo.last_good_page_top)
+            hof_api.bottom_quote = hof_histo.get_page_quote_min(page=hof_histo.last_good_page_bot)
         else:
             print(f"Pseudo {hof_histo.tagname} non trouvé en ligne ou quote à Zéro.")
             break
+    else:
+        print(f"Pseudo {hof_histo.tagname} non trouvé en ligne ou quote mauvaise.")
+        break
 
 # sauvegarde de la mémoire
-hof_histo.save_json()
+# hof_histo.save_json()
