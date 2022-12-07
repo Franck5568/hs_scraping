@@ -38,6 +38,7 @@ class HsApi:
                                   'updated': self.updated_run} for joueur in joueurs}
 
     def api_get_info(self) -> dict:
+        cpt: int = 1
         try:
             while True:
                 response = requests.get(f'{self.url_page_num}{self.bottom_page}')
@@ -45,6 +46,8 @@ class HsApi:
                 response_json: dict = json.loads(response.text)
                 if response_json.get('leaderboard').get('rows').__len__() > 0:
                     break
+                print(f"Echec connexion, tentative de récupération n° {cpt}")
+                cpt += 1
             return response_json
 
         except requests.exceptions.HTTPError as error:

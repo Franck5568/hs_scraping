@@ -93,4 +93,4 @@ while tag_in_current_page < 1:
         break
 
 # sauvegarde de la mémoire
-# hof_histo.save_json()
+hof_histo.save_json()
