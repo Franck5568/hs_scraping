@@ -1,84 +1,92 @@
 import requests
 import json
+import time
 
 
 class HsApi:
     # root url BG
-    URL_BG_ROOT = "https://hearthstone.blizzard.com/fr-fr/api/community/leaderboardsData?region=EU&leaderboardId" \
-                  "=battlegrounds"
+    _URL_BG_ROOT = "https://hearthstone.blizzard.com/fr-fr/api/community/leaderboardsData?region=EU&leaderboardId" \
+                   "=battlegrounds"
 
     def __init__(self, saison: int) -> None:
         # id de la saison courante saison - 1
-        self.season_id = saison - 1
+        self._response_json = {}
+        self._season_id = saison - 1
         # url root
-        self.url_page_num = f'{HsApi.URL_BG_ROOT}&seasonId={self.season_id}&page='
+        self.url_page_num = f'{HsApi._URL_BG_ROOT}&seasonId={self._season_id}&page='
 
         # info joueurs page courante
-        self.current_page_players = {}
-        # last page set to default value up to page_num_number
-        self.bottom_page = 0
+        self._current_page_players = {}
+        # nombre de personnes dans la classement
+        self.nbr_members = 0
         # current_page
-        self.top_page = 0
+        self.current_page = 1
         # top rank
-        self.top_quote = 0
+        self.current_quote_top = 0
         # bot rank
-        self.bottom_quote = 0
+        self.current_quote_bot = 0
         # max page
         self.max_page = 0
 
-    def api_set_last_page(self, info_json: dict) -> None:
-        if info_json:
-            self.bottom_page = info_json['leaderboard']['pagination']['totalPages']
+    def __api_set_last_page(self) -> None:
+        if self._response_json:
+            self.max_page = self._response_json['leaderboard']['pagination']['totalPages']
 
-    def api_set_current_page_players(self, joueurs: dict, page: int) -> None:
+    def api_get_nbr_members(self) -> None:
+        page = self.current_page
+        self.current_page = self.max_page
+        self.api_get_page_info()
+        l: list = list(self._current_page_players.values())
+        self.nbr_members = int(l[-1]['rang'])
+        self.current_page = page
+        self.api_get_page_info()
+
+    def __api_set_current_page_players(self, players_in_current_page: dict) -> None:
         # init page courante
-        self.current_page_players = {
-            joueur['accountid']: {'page': page, 'rang': joueur['rank'], 'quote': joueur['rating'],
-                                  'updated': self.updated_run} for joueur in joueurs}
+        self._current_page_players = {
+            joueur['accountid']: {'page': self.current_page, 'rang': joueur['rank'], 'quote': joueur['rating']}
+            for joueur in players_in_current_page}
+        # update max page
+        self.__api_set_last_page()
 
-    def api_get_info(self) -> dict:
+    def __api_get_rest_hs(self) -> dict:
         cpt: int = 1
         try:
             while True:
-                response = requests.get(f'{self.url_page_num}{self.bottom_page}')
+                response = requests.get(f'{self.url_page_num}{self.current_page}')
                 # conversion json en dictionnaire
                 response_json: dict = json.loads(response.text)
                 if response_json.get('leaderboard').get('rows').__len__() > 0:
                     break
                 print(f"Echec connexion, tentative de récupération n° {cpt}")
                 cpt += 1
+                time.sleep(cpt)
             return response_json
 
         except requests.exceptions.HTTPError as error:
             print(error)
 
-    def api_get_top_page_info(self) -> dict:
-        response_json = self.api_get_info()
-        if not self.bottom_page:
-            self.api_set_last_page(response_json)
+    def api_get_page_info(self) -> None:
+        self._response_json = self.__api_get_rest_hs()
 
         # memorise de la page interrogée
-        self.api_set_current_page_players(joueurs=response_json['leaderboard']['rows'], page=self.top_page)
-        # set current top rank
-        l: list = list(self.current_page_players.values())
-        self.top_quote = l[0]['quote']
-        print(f'chargement de la page top : Page comprise entre {self.top_page} et {self.bottom_page}, quote est '
-              f'inférieure à {self.top_quote}')
-        return self.current_page_players
+        self.__api_set_current_page_players(players_in_current_page=self._response_json['leaderboard']['rows'])
+        # update keys in lower
+        self.set_lowercase_key()
+        # update current quotes
+        l: list = list(self._current_page_players.values())
+        self.current_quote_top = l[0]['quote']
+        self.current_quote_bot = l[-1]['quote']
+        print(f'chargement de la page {self.current_page} : Quotes comprises entre {self.current_quote_bot} et '
+              f'{self.current_quote_top}')
 
-    def api_get_bottom_page_info(self) -> dict:
-        response_json = self.api_get_info()
-        # memorise de la page interrogée
-        self.api_set_current_page_players(joueurs=response_json['leaderboard']['rows'], page=self.bottom_page)
-        # get last element
-        l: list = list(self.current_page_players.values())
-        self.bottom_quote = l[-1]['quote']
-        if not self.max_page:
-            self.max_page = self.bottom_page
-        # retourne les derniers du classement
-        print(f'chargement de la page bot : Page comprise entre {self.top_page} et {self.bottom_page}, Votre quote '
-              f'est supérieure à {self.bottom_quote}')
-        return self.current_page_players
+    def find_tag(self, tag: str) -> int:
+        if self._current_page_players.get(tag, ''):
+            return self._current_page_players.get(tag).get('rang', -1)
+        else:
+            return -1
 
-    # except requests.exceptions.HTTPError as error:
-    #     print(error)
+    def set_lowercase_key(self):
+        keys: list = list(self._current_page_players.keys())
+        for k in keys:
+            self._current_page_players[str(k).lower()] = self._current_page_players.pop(k)
