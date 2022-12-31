@@ -56,14 +56,3 @@ class PlayerInfo:
 
     def del_player_info(self) -> None:
         self.hall_of_fame.pop(self.tagname)
-
-    def load_json(self) -> dict:
-        if Path.is_file(self.save_filename):
-            with open(self.save_filename, 'r') as f:
-                self.hall_of_fame = json.load(f)
-        else:
-            return {}
-
-    def save_json(self) -> None:
-        with open(self.save_filename, 'w') as f:
-            json.dump(self.hall_of_fame, f, indent=4)

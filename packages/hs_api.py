@@ -7,10 +7,9 @@ class HsApi:
     URL_BG_ROOT = "https://hearthstone.blizzard.com/fr-fr/api/community/leaderboardsData?region=EU&leaderboardId" \
                   "=battlegrounds"
 
-    def __init__(self, saison: int, updated_run: str) -> None:
-        # id de la saison courrante saison - 1
+    def __init__(self, saison: int) -> None:
+        # id de la saison courante saison - 1
         self.season_id = saison - 1
-        self.updated_run = updated_run
         # url root
         self.url_page_num = f'{HsApi.URL_BG_ROOT}&seasonId={self.season_id}&page='
 
