@@ -1,6 +1,5 @@
 import packages.saisie as info
 import packages.hs_api as hs
-import packages.player_info as player
 import math
 
 # load properties
@@ -35,30 +34,31 @@ while True:
     # sinon c'est soit = top ou bot = quote recherchée + 1
     # premier cas la quote_top == qj (tjs +1)
     elif hs_api.current_quote_top == qj:
+        pos: int = hs_api.find_tag(battle_tag.lower())
+        if pos >= 0:
+            print(f'Pseudo {battle_tag} trouvé avec la quote {qj - 1} en position {pos} sur {hs_api.nbr_members}')
+            break
         page_step = 1
         # on recherche jusqu'à ce que qj-1 < bot
-        while hs_api.current_quote_bot > qj-1:
+        while hs_api.current_quote_bot >= qj:
             hs_api.current_page += page_step
             hs_api.api_get_page_info()
             # recherche pseudo
             pos: int = hs_api.find_tag(battle_tag.lower())
             if pos >= 0:
-                print(f'Pseudo {battle_tag} trouvé avec la quote {qj-1} en position {pos} sur {hs_api.nbr_members}')
+                print(f'Pseudo {battle_tag} trouvé avec la quote {qj - 1} en position {pos} sur {hs_api.nbr_members}')
                 break
-        print(f'pseudo {battle_tag} non trouvé avec une quote de {qj-1}')
-        break
-    elif hs_api.current_quote_bot == qj:
-        page_step = 1
-        # on recherche jusqu'à ce que qj-1 > top
-        while hs_api.current_quote_top < qj-1:
-            hs_api.current_page -= page_step
-            hs_api.api_get_page_info()
-            # recherche pseudo
-            pos: int = hs_api.find_tag(battle_tag.lower())
-            if pos >= 0:
-                print(f'Pseudo {battle_tag} trouvé avec la quote {qj-1} en position {pos} sur {hs_api.nbr_members}')
-                break
-        print(f'pseudo {battle_tag} non trouvé avec une quote de {qj - 1}')
-        break
-
+    # elif hs_api.current_quote_bot == qj:
+    #     page_step = 1
+    #     # on recherche jusqu'à ce que qj-1 > top
+    #     while hs_api.current_quote_top < qj:
+    #         hs_api.current_page -= page_step
+    #         hs_api.api_get_page_info()
+    #         # recherche pseudo
+    #         pos: int = hs_api.find_tag(battle_tag.lower())
+    #         if pos >= 0:
+    #             print(f'Pseudo {battle_tag} trouvé avec la quote {qj-1} en position {pos} sur {hs_api.nbr_members}')
+    #             break
+    # else:
+    #     print(f'pseudo {battle_tag} non trouvé avec une quote de {qj - 1}')
     hs_api.api_get_page_info()
